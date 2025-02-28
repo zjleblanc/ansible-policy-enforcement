@@ -162,6 +162,19 @@ This document describes the input data that Ansible Automation Platform will pro
     "username": "admin",
     "is_superuser": true
   },
+  "credential": {
+    "name": "Demo Credential",
+    "description": "",
+    "organization": null,
+    "credential_type": 1,
+    "managed": false,
+    "inputs": {
+        "username": "admin"
+    },
+    "kind": "ssh",
+    "cloud": false,
+    "kubernetes": false
+  },
   "execution_environment": {
     "id": 2,
     "name": "Default execution environment",
