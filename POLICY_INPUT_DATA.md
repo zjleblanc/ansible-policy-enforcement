@@ -163,19 +163,21 @@ This document describes the input data that Ansible Automation Platform will pro
     "is_superuser": true,
     "teams": [],
   },
-  "credential": {
-    "name": "Demo Credential",
-    "description": "",
-    "organization": null,
-    "credential_type": 1,
-    "managed": false,
-    "inputs": {
-        "username": "admin"
-    },
-    "kind": "ssh",
-    "cloud": false,
-    "kubernetes": false
-  },
+  "credentials": [
+    {
+      "name": "Demo Credential",
+      "description": "",
+      "organization": null,
+      "credential_type": 1,
+      "managed": false,
+      "inputs": {
+          "username": "admin"
+      },
+      "kind": "ssh",
+      "cloud": false,
+      "kubernetes": false
+    }
+  ],
   "execution_environment": {
     "id": 2,
     "name": "Default execution environment",
@@ -194,7 +196,17 @@ This document describes the input data that Ansible Automation Platform will pro
     "max_concurrent_jobs": 0,
     "max_forks": 0
   },
-  "inventory": 1,
+  "inventory": {
+    "name": "Demo Inventory",
+    "description": "",
+    "has_active_failures": false,
+    "total_hosts": 1,
+    "hosts_with_active_failures": 0,
+    "total_groups": 0,
+    "has_inventory_sources": false,
+    "total_inventory_sources": 0,
+    "kind": ""
+  },
   "job_template": {
     "id": 7,
     "name": "Demo Job Template",
