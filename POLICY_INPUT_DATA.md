@@ -161,7 +161,7 @@ This document describes the input data that Ansible Automation Platform will pro
     "id": 1,
     "username": "admin",
     "is_superuser": true,
-    "teams": [],
+    "teams": []
   },
   "credentials": [
     {
