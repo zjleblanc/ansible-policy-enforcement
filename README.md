@@ -15,6 +15,6 @@ Directory contains various example and use cases that will guild you through how
 2. Prevent job execution by platform admin.
 3. Prevent job execution during maintenance window.
 4. Prevent job execution using credential with no Organization.
-5. Prevent job execution using mismatching Credentials and Inventory.
-6. Prevent job execution using mismatching SCM branch and Inventory.
-7. Prevent job execution from untrusted SCM source.
+5. Prevent job execution using mismatching resources.
+6. Prevent job execution from untrusted SCM source.
+8. ...
