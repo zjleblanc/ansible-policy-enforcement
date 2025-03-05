@@ -44,7 +44,10 @@ mismatch if {
 	cp != job_template_prefix
 }
 
-default mismatch_prefix_allowed_false := {"allowed": true}
+default mismatch_prefix_allowed_false := {
+	"allowed": true,
+	"violations": [],
+}
 
 mismatch_prefix_allowed_false := {
 	"allowed": false,

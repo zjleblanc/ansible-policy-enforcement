@@ -3,7 +3,10 @@ package aap_policy_examples
 # Find credentials with no organization
 violating_credentials := {cred.name | cred := input.credentials[_]; cred.organization == null}
 
-default global_credential_allowed_false := {"allowed": true}
+default global_credential_allowed_false := {
+	"allowed": true,
+	"violations": [],
+}
 
 # If any credential is violating, deny access and return violations
 global_credential_allowed_false := {
