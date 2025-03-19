@@ -23,6 +23,19 @@ This document describes the input data that Ansible Automation Platform will pro
   - `username` (String): Username of the creator.
   - `is_superuser` (Boolean): Indicates if the user is a superuser.
 
+### `credentials`
+- **Type:** List of Objects
+- **Description:** Credentials associated with the job execution.
+  - `id` (Integer): Unique identifier for the credential.
+  - `name` (String): Name of the credential.
+  - `description` (String): Description of the credential.
+  - `organization` (Integer or Null): Organization identifier associated with the credential.
+  - `credential_type` (Integer): Type identifier for the credential.
+  - `managed` (Boolean): Indicates if the credential is managed internally.
+  - `kind` (String): Credential type (`ssh`, `cloud`, `kubernetes`, etc.).
+  - `cloud` (Boolean): Indicates if the credential is for cloud services.
+  - `kubernetes` (Boolean): Indicates if the credential is for Kubernetes services.
+
 ### `execution_environment`
 - **Type:** Object
 - **Description:** Details about the execution environment used for the job.
@@ -55,8 +68,19 @@ This document describes the input data that Ansible Automation Platform will pro
   - `max_forks` (Integer): Maximum forks allowed.
 
 ### `inventory`
-- **Type:** Integer
-- **Description:** Identifier for the inventory used in the job.
+- **Type:** Object
+- **Description:** Inventory details used in the job execution.
+  - `id` (Integer): Unique identifier for the inventory.
+  - `name` (String): Name of the inventory.
+  - `description` (String): Description of the inventory.
+  - `kind` (String): Inventory type.
+  - `total_hosts` (Integer): Total number of hosts in the inventory.
+  - `total_groups` (Integer): Total number of groups in the inventory.
+  - `has_inventory_sources` (Boolean): Indicates if the inventory has external sources.
+  - `total_inventory_sources` (Integer): Number of external inventory sources.
+  - `has_active_failures` (Boolean): Indicates if there are active failures in the inventory.
+  - `hosts_with_active_failures` (Integer): Number of hosts with active failures.
+  - `inventory_sources` (Array): External inventory sources associated with the inventory.
 
 ### `job_template`
 - **Type:** Object
@@ -76,6 +100,15 @@ This document describes the input data that Ansible Automation Platform will pro
 ### `job_type_name`
 - **Type:** String
 - **Description:** Human-readable name for the job type.
+
+### `labels`
+- **Type:** List of Objects
+- **Description:** Labels associated with the job.
+  - `id` (Integer): Unique identifier for the label.
+  - `name` (String): Name of the label.
+  - `organization` (Object): Organization associated with the label.
+    - `id` (Integer): Unique identifier of the organization.
+    - `name` (String): Name of the organization.
 
 ### `launch_type`
 - **Type:** Choice (String)
@@ -138,25 +171,26 @@ This document describes the input data that Ansible Automation Platform will pro
 - **Type:** String
 - **Description:** SCM revision used for the job.
 
-### `workflow_job_id`
-- **Type:** Integer or Null
-- **Description:** Identifier for the associated workflow job, if applicable.
-
-### `workflow_node_id`
-- **Type:** Integer or Null
-- **Description:** Identifier for the associated workflow node, if applicable.
+### `workflow_job`
+- **Type:** Object
+- **Description:** Workflow job details, if the job is part of a workflow.
+  - `id` (Integer): Unique identifier for the workflow job.
+  - `name` (String): Name of the workflow job.
 
 ### `workflow_job_template`
-- **Type:** Object or Null
-- **Description:** Information about the workflow job template, if applicable.
+- **Type:** Object
+- **Description:** Workflow job template details.
+  - `id` (Integer): Unique identifier for the workflow job template.
+  - `name` (String): Name of the workflow job template.
+  - `job_type` (String or Null): Type of job within the workflow context.
 
 ## Example input data from demo job template launch
 
 ```json
 {
-  "id": 785,
+  "id": 70,
   "name": "Demo Job Template",
-  "created": "2025-02-27T20:32:14.874821Z",
+  "created": "2025-03-19T19:07:03.329426Z",
   "created_by": {
     "id": 1,
     "username": "admin",
@@ -165,14 +199,12 @@ This document describes the input data that Ansible Automation Platform will pro
   },
   "credentials": [
     {
-      "name": "Demo Credential",
+      "id": 3,
+      "name": "Example Machine Credential",
       "description": "",
       "organization": null,
       "credential_type": 1,
       "managed": false,
-      "inputs": {
-          "username": "admin"
-      },
       "kind": "ssh",
       "cloud": false,
       "kubernetes": false
@@ -181,31 +213,35 @@ This document describes the input data that Ansible Automation Platform will pro
   "execution_environment": {
     "id": 2,
     "name": "Default execution environment",
-    "image": "registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel8:latest",
+    "image": "registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel8@sha256:b9f60d9ebbbb5fdc394186574b95dea5763b045ceff253815afeb435c626914d",
     "pull": ""
   },
-  "extra_vars": {},
+  "extra_vars": {
+    "example": "value"
+  },
   "forks": 0,
   "hosts_count": 0,
   "instance_group": {
     "id": 2,
     "name": "default",
-    "capacity": 134,
+    "capacity": 0,
     "jobs_running": 1,
-    "jobs_total": 209,
+    "jobs_total": 38,
     "max_concurrent_jobs": 0,
     "max_forks": 0
   },
   "inventory": {
+    "id": 1,
     "name": "Demo Inventory",
     "description": "",
-    "has_active_failures": false,
+    "kind": "",
     "total_hosts": 1,
-    "hosts_with_active_failures": 0,
     "total_groups": 0,
     "has_inventory_sources": false,
     "total_inventory_sources": 0,
-    "kind": ""
+    "has_active_failures": false,
+    "hosts_with_active_failures": 0,
+    "inventory_sources": []
   },
   "job_template": {
     "id": 7,
@@ -214,7 +250,17 @@ This document describes the input data that Ansible Automation Platform will pro
   },
   "job_type": "run",
   "job_type_name": "job",
-  "launch_type": "manual",
+  "labels": [
+    {
+      "id": 1,
+      "name": "Demo label",
+      "organization": {
+        "id": 1,
+        "name": "Default"
+      }
+    }
+  ],
+  "launch_type": "workflow",
   "limit": "",
   "launched_by": {
     "id": 1,
@@ -241,8 +287,14 @@ This document describes the input data that Ansible Automation Platform will pro
   },
   "scm_branch": "",
   "scm_revision": "",
-  "workflow_job_id": null,
-  "workflow_node_id": null,
-  "workflow_job_template": null
+  "workflow_job": {
+    "id": 69,
+    "name": "Demo Workflow"
+  },
+  "workflow_job_template": {
+    "id": 10,
+    "name": "Demo Workflow",
+    "job_type": null
+  }
 }
 ```
