@@ -16,7 +16,7 @@ ifeq (,$(shell which opa 2>/dev/null))
 	@{ \
 	set -e ;\
 	mkdir -p $(dir $(OPA)) ;\
-	curl -sSLo - https://github.com/open-policy-agent/opa/releases/download/$(OPA_VERSION)/opa_$(OS)_$(ARCH) > $(OPA) ;\
+	curl -L -o $(OPA) https://openpolicyagent.org/downloads/$(OPA_VERSION)/opa_$(OS)_$(ARCH)_static ;\
 	chmod +x $(OPA) ;\
 	}
 else

@@ -1,0 +1,11 @@
+# Binary directory
+bin/
+
+# macOS system files
+.DS_Store
+
+# Editor directories and files
+.idea/
+.vscode/
+*.swp
+*.swo
