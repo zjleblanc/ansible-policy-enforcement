@@ -6,7 +6,7 @@ import rego.v1
 valid_extra_var_values := {"extra_var_key": ["allowed_value1", "allowed_value2"]}
 
 # Default policy response indicating allowed status with no violations
-default extra_var_validation := {
+default extra_vars_validation := {
 	"allowed": true,
 	"violations": [],
 }
