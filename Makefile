@@ -8,6 +8,7 @@ OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 ARCH := $(shell uname -m | sed 's/x86_64/amd64/')
 OPA_VERSION := latest
 OPA := $(shell pwd)/bin/opa
+CONTAINER_RUNTIME ?= podman
 
 .PHONY: opa
 opa: ## Download OPA locally if necessary.
@@ -63,6 +64,16 @@ clean:
 	@echo "Cleaning up..."
 	@find . -type f -name "*.rego.bak" -delete
 
+.PHONY: opa-server
+opa-server: ## Run OPA server in a container with file watching
+	@echo "Starting OPA server with file watching..."
+	@$(CONTAINER_RUNTIME) run \
+		--rm \
+		-p 8181:8181 \
+		-v $(shell pwd)/$(POLICY_DIR):/policies \
+		openpolicyagent/opa:$(OPA_VERSION) \
+		run --server --addr=0.0.0.0:8181 --watch /policies
+
 .PHONY: help
 help:
 	@echo "Available targets:"
@@ -74,4 +85,5 @@ help:
 	@echo "  fmt-check      - Check if rego files are formatted correctly"
 	@echo "  check          - Validate all rego files"
 	@echo "  clean          - Clean up generated files"
+	@echo "  opa-server     - Run OPA server in container with file watching"
 	@echo "  help           - Show this help message" 
