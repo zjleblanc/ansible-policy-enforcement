@@ -9,13 +9,13 @@ valid_extra_var_values_by_team := {
 }
 
 # Default response allowing extra_vars unless violations occur
-default extra_vars_validation := {
+default extra_vars_restriction_per_team := {
 	"allowed": true,
 	"violations": [],
 }
 
 # Evaluate extra_vars against allowed values considering team memberships
-extra_vars_validation := result if {
+extra_vars_restriction_per_team := result if {
 	# Extract extra_vars from input
 	input_extra_vars := object.get(input, ["extra_vars"], {})
 
