@@ -1,17 +1,21 @@
-# OPA test runner Makefile
-
 # Default target
 .DEFAULT_GOAL := help
 
-# Variables
+# Build and Environment Variables
 OS := $(shell uname -s | tr '[:upper:]' '[:lower:]')
 ARCH := $(shell uname -m | sed 's/x86_64/amd64/')
 OPA_VERSION := latest
-OPA := $(shell pwd)/bin/opa
 CONTAINER_RUNTIME ?= podman
 
+# Directory Variables
+TEST_DIR := test_aap_policy_examples
+POLICY_DIR := aap_policy_examples
+
+# OPA Binary Management
+OPA := $(shell pwd)/bin/opa
+
 .PHONY: opa
-opa: ## Download OPA locally if necessary.
+opa: ## Download OPA locally if necessary
 ifeq (,$(wildcard $(OPA)))
 ifeq (,$(shell which opa 2>/dev/null))
 	@{ \
@@ -21,21 +25,18 @@ ifeq (,$(shell which opa 2>/dev/null))
 	chmod +x $(OPA) ;\
 	}
 else
-OPA = $(shell which opa)
+	$(eval OPA := $(shell which opa))
 endif
 endif
 
-# Variables
-TEST_DIR := test_aap_policy_examples
-POLICY_DIR := aap_policy_examples
-
+# Testing Targets
 .PHONY: test
 test: opa ## Run all OPA tests
 	@echo "Running all OPA tests..."
 	@$(OPA) test $(TEST_DIR) $(POLICY_DIR) --verbose
 
 .PHONY: test-%
-test-%: opa ## Run tests for a specific policy (e.g., test-allowed_false)
+test-%: opa ## Run tests for a specific policy (e.g., make test-allowed_false)
 	@echo "Running tests for $*..."
 	@$(OPA) test $(TEST_DIR)/$*_test.rego $(POLICY_DIR)/$*.rego --verbose
 
@@ -44,6 +45,7 @@ test-coverage: opa ## Run tests with coverage report
 	@echo "Running tests with coverage report..."
 	@$(OPA) test $(TEST_DIR) $(POLICY_DIR) --coverage --format=json
 
+# Code Quality Targets
 .PHONY: fmt
 fmt: opa ## Format all rego files
 	@echo "Formatting all rego files..."
@@ -59,11 +61,7 @@ check: opa ## Validate all rego files
 	@echo "Validating rego files..."
 	@$(OPA) check $(TEST_DIR) $(POLICY_DIR)
 
-.PHONY: clean
-clean: ## Clean up generated files
-	@echo "Cleaning up..."
-	@find . -type f -name "*.rego.bak" -delete
-
+# Development Server
 .PHONY: opa-server
 opa-server: ## Run OPA server in container with file watching
 	@echo "Starting OPA server with file watching..."
@@ -74,6 +72,13 @@ opa-server: ## Run OPA server in container with file watching
 		openpolicyagent/opa:$(OPA_VERSION) \
 		run --server --addr=0.0.0.0:8181 --watch /policies
 
+# Maintenance Targets
+.PHONY: clean
+clean: ## Clean up generated files
+	@echo "Cleaning up..."
+	@find . -type f -name "*.rego.bak" -delete
+
+# Help and Documentation
 .PHONY: help
 help: ## Show this help message
 	@echo "Usage: make [target]"
@@ -86,4 +91,4 @@ help: ## Show this help message
 			helpMessage = substr($$0, index($$0, "##") + 3); \
 			printf "  %-20s %s\n", helpCommand, helpMessage; \
 		} \
-	}' $(MAKEFILE_LIST) | sort 
+	}' $(MAKEFILE_LIST) | sort
