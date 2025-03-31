@@ -1,0 +1,25 @@
+name: OPA Policy Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run OPA Tests
+        run: make test
+
+      - name: Check Formatting
+        run: make fmt-check
+
+      - name: Validate Policies
+        run: make check
+
+      - name: Generate Coverage Report
+        run: make test-coverage
