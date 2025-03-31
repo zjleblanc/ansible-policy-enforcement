@@ -3,9 +3,7 @@ package aap_policy_examples
 import rego.v1
 
 # Define allowed values for specific keys in extra_vars
-valid_extra_var_values := {
-	"extra_var_key": ["allowed_value1", "allowed_value2"],
-}
+valid_extra_var_values := {"extra_var_key": ["allowed_value1", "allowed_value2"]}
 
 # Default policy response indicating allowed status with no violations
 default extra_var_validation := {
@@ -20,7 +18,7 @@ extra_vars_validation := result if {
 
 	# Identify keys with disallowed values
 	violating_keys := [key |
-		valid_extra_var_values[key];
+		valid_extra_var_values[key]
 		not allowed_value(key, input_extra_vars[key])
 	]
 
@@ -35,5 +33,5 @@ extra_vars_validation := result if {
 
 # Check if a given value for a key is allowed
 allowed_value(key, value) if {
-	valid_extra_var_values[key][_]== value
+	valid_extra_var_values[key][_] == value
 }

@@ -1,4 +1,4 @@
-package app_policy_examples
+package aap_policy_examples
 
 # Define maintenance window in UTC
 maintenance_start_hour := 12 # 12:00 UTC (5 PM EST)
@@ -16,7 +16,7 @@ is_maintenance_time if {
 }
 
 is_maintenance_time if {
-	created_hour_utc < maintenance_end_hour # Before 04:00 UTC
+	created_hour_utc <= maintenance_end_hour # Before or at 04:00 UTC
 }
 
 default maintenance_window := {
