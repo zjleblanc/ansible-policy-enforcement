@@ -23,9 +23,10 @@ For detailed setup instructions, see "Setting up Policy as Code for Ansible Auto
 ├── example_input_data/     # Sample input data for testing
 ├── test_aap_policy_examples/ # Test cases and validation
 ├── openshift/             # OpenShift-specific configurations
-├── bin/                   # Binary and executable files
-├── .github/              # GitHub-specific configurations
-├── POLICY_INPUT_DATA.md  # Documentation of input data structure
+├── tools/                # Utility scripts and tools
+├── bin/                  # Binary and executable files
+├── .github/             # GitHub-specific configurations
+├── POLICY_INPUT_DATA.md # Documentation of input data structure
 └── POLICY_OUTPUT_DATA.md # Documentation of output data structure
 ```
 

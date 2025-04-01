@@ -10,6 +10,7 @@ CONTAINER_RUNTIME ?= podman
 # Directory Variables
 TEST_DIR := test_aap_policy_examples
 POLICY_DIR := aap_policy_examples
+TOOLS_DIR := tools
 
 # OPA Binary Management
 OPA := $(shell pwd)/bin/opa
@@ -106,6 +107,11 @@ openshift/load-policies: ## Load all policies onto the deployed OPA server
 clean: ## Clean up generated files
 	@echo "Cleaning up..."
 	@find . -type f -name "*.rego.bak" -delete
+
+.PHONY: tools/sync_policy_docs
+tools/sync_policy_docs: ## Sync policy documentation with actual policy files
+	@echo "Syncing policy documentation with actual policy files..."
+	@python3 $(TOOLS_DIR)/sync_policy_docs.py
 
 # Help and Documentation
 .PHONY: help
