@@ -41,7 +41,10 @@ The repository includes several example policies demonstrating different use cas
 3. [Prevent job execution during maintenance window](3.Prevent%20job%20execution%20during%20maintenance%20window.md)
 4. [Prevent job execution using credential with no Organization](4.Prevent%20job%20execution%20using%20credential%20with%20no%20Organization.md)
 5. [Prevent job execution using mismatching resources](5.Prevent%20job%20execution%20using%20mismatching%20resources.md)
-6. [Enforce extra variable rules](6.Enforce%20extra_var%20rules.md)
+6. Enforce extra_vars based policies
+   - [Prevent job execution using extra vars with non approved vars](6a.Prevent%20job%20execution%20using%20extra%20vars%20with%20non%20approved%20vars.md) - Validate keys for extra_vars
+   - [Prevent job execution using extra vars with non approved values](6b.Prevent%20job%20execution%20using%20extra%20vars%20with%20non%20approved%20values.md) - Validate values for extra_vars 
+   - [Prevent job execution based on user limitations for extra vars](6c.Prevent%20job%20execution%20based%20on%20user%20limitations%20for%20extra%20vars.md) - Team-based access control on extra_vars
 
 Each policy example includes:
 - Detailed explanation of the use case
