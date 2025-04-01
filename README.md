@@ -8,12 +8,15 @@ Policy as Code allows you to define and enforce policies across your Ansible Aut
 
 ## Prerequisites
 
-- Ansible Automation Platform 2.5 or later with the `FEATURE_POLICY_AS_CODE_ENABLED` feature flag set to `True`
+- Ansible Automation Platform 2.5 or later with the `FEATURE_POLICY_AS_CODE_ENABLED` feature flag set to `True` 
+  - see [Enabling Policy as Code Feature](docs/Enabling%20Policy%20as%20Code%20feature.md) for more information
 - An OPA server that's reachable from your AAP deployment
   - See [Deploy OPA server on OpenShift](docs/Deploy%20OPA%20server%20on%20OpenShift.md) for development and testing setup
   - See [Deploy OPA server with Podman](docs/Deploy%20OPA%20server%20with%20Podman.md) for development and testing setup
-- Configured AAP with settings required for authenticating to your OPA server
-- General knowledge around OPA and the Rego language
+- Configured AAP with settings required for connecting to your OPA server 
+  - see [Configuring OPA Server Connection](docs/Configuring%20OPA%20Server%20Connection.md) for more information
+- General knowledge around OPA and the Rego language 
+  - see [Official OPA Documentation](https://www.openpolicyagent.org/docs/latest/) for more information
 
 For detailed setup instructions, see "Setting up Policy as Code for Ansible Automation Platform" in the official documentation.
 
