@@ -61,9 +61,9 @@ check: opa ## Validate all rego files
 	@echo "Validating rego files..."
 	@$(OPA) check $(TEST_DIR) $(POLICY_DIR)
 
-# Development Server
-.PHONY: opa-server
-opa-server: ## Run OPA server in container with file watching
+# Containerized OPA Server
+.PHONY: container/run-opa-server
+container/run-opa-server: ## Run OPA server in container with file watching
 	@echo "Starting OPA server with file watching..."
 	@$(CONTAINER_RUNTIME) run \
 		--rm \
@@ -71,6 +71,35 @@ opa-server: ## Run OPA server in container with file watching
 		-v $(shell pwd)/$(POLICY_DIR):/policies \
 		openpolicyagent/opa:$(OPA_VERSION) \
 		run --server --addr=0.0.0.0:8181 --watch /policies
+
+# OpenShift Deployment of OPA Server
+.PHONY: openshift/deploy-opa-server
+openshift/deploy-opa-server: ## Deploy OPA server to OpenShift
+	@echo "Deploying OPA server to OpenShift..."
+	@OPA_VERSION=$(OPA_VERSION) envsubst < openshift/opa-deployment.yaml | oc apply -f -
+
+.PHONY: openshift/undeploy-opa-server
+openshift/undeploy-opa-server: ## Remove OPA server from OpenShift
+	@echo "Removing OPA server from OpenShift..."
+	@OPA_VERSION=$(OPA_VERSION) envsubst < openshift/opa-deployment.yaml | oc delete -f -
+
+.PHONY: openshift/load-policies
+openshift/load-policies: ## Load all policies onto the deployed OPA server
+	@echo "Loading policies onto OPA server..."
+	@OPA_URL=$$(oc get route opa -o jsonpath='{.spec.host}') && \
+	echo "OPA URL: $$OPA_URL" && \
+	for policy in $(POLICY_DIR)/*.rego; do \
+		policy_name=$$(basename "$$policy" .rego); \
+		echo "Policy file: $$policy"; \
+		echo "Policy name: $$policy_name"; \
+		if curl -s -w "%{http_code}" -X PUT "http://$$OPA_URL/v1/policies/$$policy_name" \
+			-H "Content-Type: text/plain" \
+			--data-binary @$$policy | grep -q "200"; then \
+			echo " ✓ Successfully loaded policy"; \
+		else \
+			echo " ✗ Failed to load policy"; \
+		fi; \
+	done
 
 # Maintenance Targets
 .PHONY: clean

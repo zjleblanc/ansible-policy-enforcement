@@ -8,7 +8,7 @@ This document describes the expected output from OPA policy query
 - **Type:** Boolean
 - **Description:** Indicates whether the action is permitted.
 
-### `violations` (optional)
+### `violations`
 - **Type:** List of Strings
 - **Description:** Reasons why the action is not allowed.
 
