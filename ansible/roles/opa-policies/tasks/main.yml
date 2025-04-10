@@ -1,0 +1,33 @@
+---
+- name: Ensure policies directory exists
+  file:
+    path: "{{ policies_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Find all policy files
+  find:
+    paths: "{{ policies_dir }}"
+    patterns: "{{ policy_pattern }}"
+  register: policy_files
+
+- name: Get OPA route hostname
+  kubernetes.core.k8s_info:
+    kind: Route
+    name: "{{ opa_deployment_name }}"
+    namespace: "{{ opa_namespace }}"
+  register: opa_route
+
+- name: Load each policy into OPA
+  uri:
+    url: "https://{{ opa_route.resources[0].spec.host }}/v1/policies/{{ item.path | basename }}"
+    method: PUT
+    body: "{{ lookup('file', item.path) }}"
+    body_format: raw
+    client_cert: "{{ certificates_dir }}/client.crt"
+    client_key: "{{ certificates_dir }}/client.key"
+    ca_path: "{{ certificates_dir }}/ca.crt"
+    status_code: [200, 201]
+  loop: "{{ policy_files.files }}"
+  loop_control:
+    label: "{{ item.path | basename }}"

@@ -1,0 +1,13 @@
+---
+# OPA Configuration
+opa_deployment_name: "opa-mtls"
+opa_namespace: "opa"
+
+# TLS Configuration
+certificates_dir: "{{ playbook_dir }}/certificates"
+
+# Directory where policy files are stored
+policies_dir: "{{ playbook_dir }}/../aap_policy_examples"
+
+# Pattern to match policy files
+policy_pattern: "*.rego" 
