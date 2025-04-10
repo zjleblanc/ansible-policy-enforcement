@@ -1,0 +1,99 @@
+---
+- name: Create certificates directory
+  file:
+    path: "{{ certificates_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Generate CA private key
+  community.crypto.openssl_privatekey:
+    path: "{{ certificates_dir }}/ca.key"
+    size: 2048
+
+- name: Generate CA certificate
+  community.crypto.openssl_csr:
+    path: "{{ certificates_dir }}/ca.csr"
+    privatekey_path: "{{ certificates_dir }}/ca.key"
+    common_name: "OPA-CA"
+    basic_constraints_critical: true
+    basic_constraints:
+      - "CA:TRUE"
+
+- name: Generate self-signed CA certificate
+  community.crypto.x509_certificate:
+    path: "{{ certificates_dir }}/ca.crt"
+    privatekey_path: "{{ certificates_dir }}/ca.key"
+    csr_path: "{{ certificates_dir }}/ca.csr"
+    provider: selfsigned
+    selfsigned_not_before: "-1d"
+    selfsigned_not_after: "+{{ ca_cert_validity_days }}d"
+
+- name: Generate server private key
+  community.crypto.openssl_privatekey:
+    path: "{{ certificates_dir }}/server.key"
+    size: 2048
+
+- name: Set subject alternative names for server certificate
+  set_fact:
+    server_sans:
+      - "DNS:opa-server"
+      - "DNS:opa-server.{{ opa_namespace }}"
+      - "DNS:opa-server.{{ opa_namespace }}.svc"
+      - "DNS:opa-server.{{ opa_namespace }}.svc.cluster.local"
+      - "DNS:{{ route_host }}"
+
+- name: Generate server CSR
+  community.crypto.openssl_csr:
+    path: "{{ certificates_dir }}/server.csr"
+    privatekey_path: "{{ certificates_dir }}/server.key"
+    common_name: "opa-server"
+    subject_alt_name: "{{ server_sans }}"
+
+- name: Generate server certificate
+  community.crypto.x509_certificate:
+    path: "{{ certificates_dir }}/server.crt"
+    privatekey_path: "{{ certificates_dir }}/server.key"
+    csr_path: "{{ certificates_dir }}/server.csr"
+    provider: ownca
+    ownca_path: "{{ certificates_dir }}/ca.crt"
+    ownca_privatekey_path: "{{ certificates_dir }}/ca.key"
+    ownca_not_before: "-1d"
+    ownca_not_after: "+{{ server_cert_validity_days }}d"
+
+- name: Generate client private key
+  community.crypto.openssl_privatekey:
+    path: "{{ certificates_dir }}/client.key"
+    size: 2048
+
+- name: Generate client CSR
+  community.crypto.openssl_csr:
+    path: "{{ certificates_dir }}/client.csr"
+    privatekey_path: "{{ certificates_dir }}/client.key"
+    common_name: "opa-client"
+
+- name: Generate client certificate
+  community.crypto.x509_certificate:
+    path: "{{ certificates_dir }}/client.crt"
+    privatekey_path: "{{ certificates_dir }}/client.key"
+    csr_path: "{{ certificates_dir }}/client.csr"
+    provider: ownca
+    ownca_path: "{{ certificates_dir }}/ca.crt"
+    ownca_privatekey_path: "{{ certificates_dir }}/ca.key"
+    ownca_not_before: "-1d"
+    ownca_not_after: "+{{ client_cert_validity_days }}d"
+
+- name: Create Kubernetes secret for OPA certificates
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ kubeconfig }}"
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: opa-server-certs
+        namespace: "{{ opa_namespace }}"
+      type: Opaque
+      data:
+        ca.crt: "{{ lookup('file', certificates_dir + '/ca.crt') | b64encode }}"
+        server.crt: "{{ lookup('file', certificates_dir + '/server.crt') | b64encode }}"
+        server.key: "{{ lookup('file', certificates_dir + '/server.key') | b64encode }}" 

@@ -1,0 +1,14 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: "{{ opa_deployment_name }}"
+  namespace: "{{ opa_namespace }}"
+spec:
+  host: "{{ route_host }}"
+  to:
+    kind: Service
+    name: "{{ opa_deployment_name }}"
+  port:
+    targetPort: https
+  tls:
+    termination: passthrough 

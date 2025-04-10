@@ -1,0 +1,18 @@
+---
+# OPA Configuration
+opa_deployment_name: "opa-server"
+opa_namespace: "opa"
+opa_image: "openpolicyagent/opa:latest-static"
+
+# TLS Configuration
+ca_cert_validity_days: 365
+server_cert_validity_days: 365
+client_cert_validity_days: 365
+certificates_dir: "{{ playbook_dir }}/certificates"
+
+# Kubernetes Configuration
+# Use environment variable K8S_AUTH_KUBECONFIG or set this variable
+kubeconfig: "{{ lookup('env', 'K8S_AUTH_KUBECONFIG') | default('~/.kube/config', true) }}"
+
+# Route Configuration
+create_route: true

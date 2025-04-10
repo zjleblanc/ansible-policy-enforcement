@@ -1,0 +1,38 @@
+---
+- name: Create OPA namespace
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ kubeconfig }}"
+    definition: "{{ lookup('template', 'namespace.yaml.j2') | from_yaml }}"
+
+- name: Get OpenShift ingress domain
+  shell: oc get ingresscontroller -n openshift-ingress-operator default -o jsonpath='{.status.domain}' --kubeconfig {{ kubeconfig }}
+  register: ingress_domain
+  when: create_route | default(true) | bool
+
+- name: Set route hostname
+  set_fact:
+    route_host: "{{ opa_deployment_name }}-{{ opa_namespace }}.{{ ingress_domain.stdout }}"
+  when: create_route | default(true) | bool
+
+- name: Include mTLS tasks
+  include_tasks: mtls.yml
+
+- name: Create OPA Deployment
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ kubeconfig }}"
+    definition: "{{ lookup('template', 'deployment.yaml.j2') | from_yaml }}"
+
+- name: Create OPA Service
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ kubeconfig }}"
+    definition: "{{ lookup('template', 'service.yaml.j2') | from_yaml }}"
+
+- name: Create OPA Route
+  kubernetes.core.k8s:
+    state: present
+    kubeconfig: "{{ kubeconfig }}"
+    definition: "{{ lookup('template', 'route.yaml.j2') | from_yaml }}"
+  when: create_route | default(true) | bool 

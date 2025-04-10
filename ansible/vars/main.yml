@@ -1,0 +1,3 @@
+---
+# Custom variables can be added here
+# These will override the defaults in roles/opa/defaults/main.yml 

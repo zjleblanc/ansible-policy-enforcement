@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ opa_deployment_name }}"
+  namespace: "{{ opa_namespace }}"
+spec:
+  selector:
+    app: opa-server
+  ports:
+    - name: https
+      port: 8181
+      targetPort: 8181
+    - name: metrics
+      port: 9090
+      targetPort: 9090
+    - name: diagnostic
+      port: 8282
+      targetPort: 8282
+  type: ClusterIP 

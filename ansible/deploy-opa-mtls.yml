@@ -1,0 +1,9 @@
+---
+- name: Deploy OPA Server on OpenShift with mTLS
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - vars/main.yml
+
+  roles:
+    - role: opa

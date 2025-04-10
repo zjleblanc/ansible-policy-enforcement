@@ -9,3 +9,6 @@ bin/
 .vscode/
 *.swp
 *.swo
+
+# Generated certificates
+ansible/certificates/

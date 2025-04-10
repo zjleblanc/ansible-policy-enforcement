@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: "{{ opa_deployment_name }}"
+  namespace: "{{ opa_namespace }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opa-server
+  template:
+    metadata:
+      labels:
+        app: opa-server
+    spec:
+      containers:
+      - name: opa-server
+        image: "{{ opa_image }}"
+        args:
+          - "run"
+          - "--server"
+          - "--authentication=tls"
+          - "--tls-cert-file=/etc/opa/certs/server.crt"
+          - "--tls-private-key-file=/etc/opa/certs/server.key"
+          - "--tls-ca-cert-file=/etc/opa/certs/ca.crt"
+          - "--addr=:8181"
+        ports:
+          - containerPort: 8181
+            name: https
+            protocol: TCP
+        volumeMounts:
+          - name: opa-certs
+            mountPath: /etc/opa/certs
+      volumes:
+      - name: opa-certs
+        secret:
+          secretName: opa-server-certs 
