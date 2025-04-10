@@ -1,6 +1,6 @@
 ---
 # OPA Configuration
-opa_deployment_name: "opa-server"
+opa_deployment_name: "opa-mtls"
 opa_namespace: "opa"
 opa_image: "openpolicyagent/opa:latest-static"
 

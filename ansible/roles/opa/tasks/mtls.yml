@@ -36,17 +36,17 @@
 - name: Set subject alternative names for server certificate
   set_fact:
     server_sans:
-      - "DNS:opa-server"
-      - "DNS:opa-server.{{ opa_namespace }}"
-      - "DNS:opa-server.{{ opa_namespace }}.svc"
-      - "DNS:opa-server.{{ opa_namespace }}.svc.cluster.local"
+      - "DNS:{{ opa_deployment_name }}"
+      - "DNS:{{ opa_deployment_name }}.{{ opa_namespace }}"
+      - "DNS:{{ opa_deployment_name }}.{{ opa_namespace }}.svc"
+      - "DNS:{{ opa_deployment_name }}.{{ opa_namespace }}.svc.cluster.local"
       - "DNS:{{ route_host }}"
 
 - name: Generate server CSR
   community.crypto.openssl_csr:
     path: "{{ certificates_dir }}/server.csr"
     privatekey_path: "{{ certificates_dir }}/server.key"
-    common_name: "opa-server"
+    common_name: "{{ opa_deployment_name }}"
     subject_alt_name: "{{ server_sans }}"
 
 - name: Generate server certificate
@@ -90,7 +90,7 @@
       apiVersion: v1
       kind: Secret
       metadata:
-        name: opa-server-certs
+        name: "{{ opa_deployment_name }}-certs"
         namespace: "{{ opa_namespace }}"
       type: Opaque
       data:

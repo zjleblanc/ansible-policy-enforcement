@@ -62,7 +62,7 @@ The OPA server is exposed externally through an OpenShift route. To access it us
 
 1. Get the route URL:
 ```bash
-oc get route opa-server -n opa -o jsonpath='{.spec.host}'
+oc get route opa-mtls -n opa -o jsonpath='{.spec.host}'
 ```
 
 2. Use curl with the client certificates (generated in the `certificates/` directory):
@@ -71,7 +71,7 @@ oc get route opa-server -n opa -o jsonpath='{.spec.host}'
 curl --cacert certificates/ca.crt \
      --cert certificates/client.crt \
      --key certificates/client.key \
-     https://$(oc get route opa-server -n opa -o jsonpath='{.spec.host}')/health
+     https://$(oc get route opa-mtls -n opa -o jsonpath='{.spec.host}')/health
 
 # Query a policy
 curl --cacert certificates/ca.crt \
@@ -80,5 +80,5 @@ curl --cacert certificates/ca.crt \
      -X POST \
      -H "Content-Type: application/json" \
      -d '{"input": {"user": "alice"}}' \
-     https://$(oc get route opa-server -n opa -o jsonpath='{.spec.host}')/v1/data/package/rule
+     https://$(oc get route opa-mtls -n opa -o jsonpath='{.spec.host}')/v1/data/package/rule
 ```
