@@ -9,7 +9,7 @@ CONTAINER_RUNTIME ?= podman
 
 # Directory Variables
 TEST_DIR := test_aap_policy_examples
-POLICY_DIR := aap_policy_examples
+POLICY_DIR := autodotes_policy
 TOOLS_DIR := tools
 
 # OPA Binary Management
