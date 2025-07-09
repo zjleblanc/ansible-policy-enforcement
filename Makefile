@@ -69,7 +69,7 @@ container/run-opa-server: ## Run OPA server in container with file watching
 	@$(CONTAINER_RUNTIME) run \
 		--rm \
 		-p 8181:8181 \
-		-v $(shell pwd)/$(POLICY_DIR):/policies \
+		-v $(shell pwd)/$(POLICY_DIR):/policies:z \
 		openpolicyagent/opa:$(OPA_VERSION) \
 		run --server --addr=0.0.0.0:8181 --watch /policies
 
