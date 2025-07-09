@@ -71,6 +71,10 @@ Each policy example includes:
 
 The repository includes test cases and example input data to help you validate your policies. See the `test_aap_policy_examples/` directory for more details.
 
+## Rego Playground
+
+For instant feedback with sample input and custom rego policy, I like to use the [Rego Playground](https://play.openpolicyagent.org/). The provided sandbox makes it easy to iterate quickly (i.e. fail fast).
+
 ## Documentation
 
 - [POLICY_INPUT_DATA.md](POLICY_INPUT_DATA.md): Contains detailed information about the input data structure used by the policies
