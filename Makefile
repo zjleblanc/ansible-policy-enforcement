@@ -71,7 +71,7 @@ container/run-opa-server: ## Run OPA server in container with file watching
 		-p 8181:8181 \
 		-v $(shell pwd)/$(POLICY_DIR):/policies:z \
 		openpolicyagent/opa:$(OPA_VERSION) \
-		run --server --addr=0.0.0.0:8181 --watch /policies
+		run --server --set decision_logs.console=true --addr=0.0.0.0:8181 --watch /policies
 
 # OpenShift Deployment of OPA Server
 .PHONY: openshift/deploy-opa-server

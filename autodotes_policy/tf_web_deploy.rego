@@ -39,7 +39,7 @@ tf_web_deploy := result if {
 
 	result := {
 		"allowed": false,
-		"violations": [sprintf("extra_vars contain disallowed values for keys: %v. Allowed values: %v", [violating_keys, allowed_extra_var_values])],
+		"violations": [sprintf("🙅 extra_vars contain disallowed values for keys: %v. Allowed values: %v", [violating_keys, allowed_extra_var_values])],
 	}
 }
 
