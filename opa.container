@@ -11,4 +11,4 @@ Exec=run --server --set decision_logs.console=true --addr=0.0.0.0:8181 --watch /
 ContainerName=opa
 PublishPort=8181:8181
 Pull=never
-Volume=/home/zach/opa_policies:/policies:z
+Volume=<QUADLET_POLICIES_DEST>:/policies:z

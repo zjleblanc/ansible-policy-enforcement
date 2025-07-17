@@ -12,6 +12,9 @@ TEST_DIR := test_aap_policy_examples
 POLICY_DIR := autodotes_policy
 TOOLS_DIR := tools
 
+# Quadlet Variable
+QUADLET_POLICIES_DEST := $(HOME)/opa_policies
+
 # OPA Binary Management
 OPA := $(shell pwd)/bin/opa
 
@@ -77,9 +80,13 @@ container/run-opa-server: ## Run OPA server in container with file watching
 .PHONY: quadlet/run-opa-server
 quadlet/run-opa-server: ## Run OPA server in container with file watching
 	@echo "Using quadlet to run opa server"
+	@mkdir -p $(QUADLET_POLICIES_DEST)
+	@cp $(POLICY_DIR)/* $(QUADLET_POLICIES_DEST)/
 	@mkdir -p $(HOME)/.config/containers/systemd
 	@cp opa.container $(HOME)/.config/containers/systemd/
+	@sed -i 's%<QUADLET_POLICIES_DEST>%$(QUADLET_POLICIES_DEST)%' $(HOME)/.config/containers/systemd/opa.container
 	@systemctl --user daemon-reload
+	@systemctl --user stop opa.service
 	@systemctl --user start opa.service
 
 # OpenShift Deployment of OPA Server
