@@ -1,0 +1,14 @@
+[Unit]
+Description=Open Policy Agent Server
+After=network-online.target
+
+[Install]
+WantedBy=multi-user.target
+
+[Container]
+Image=docker.io/openpolicyagent/opa:latest-static
+Exec=run --server --set decision_logs.console=true --addr=0.0.0.0:8181 --watch /policies
+ContainerName=opa
+PublishPort=8181:8181
+Pull=never
+Volume=/home/zach/opa_policies:/policies:z

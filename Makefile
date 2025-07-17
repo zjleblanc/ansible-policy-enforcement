@@ -73,6 +73,15 @@ container/run-opa-server: ## Run OPA server in container with file watching
 		openpolicyagent/opa:$(OPA_VERSION) \
 		run --server --set decision_logs.console=true --addr=0.0.0.0:8181 --watch /policies
 
+# Quadlet OPA Server
+.PHONY: quadlet/run-opa-server
+quadlet/run-opa-server: ## Run OPA server in container with file watching
+	@echo "Using quadlet to run opa server"
+	@mkdir -p $(HOME)/.config/containers/systemd
+	@cp opa.container $(HOME)/.config/containers/systemd/
+	@systemctl --user daemon-reload
+	@systemctl --user start opa.service
+
 # OpenShift Deployment of OPA Server
 .PHONY: openshift/deploy-opa-server
 openshift/deploy-opa-server: ## Deploy OPA server to OpenShift
