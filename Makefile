@@ -80,11 +80,14 @@ container/run-opa-server: ## Run OPA server in container with file watching
 .PHONY: quadlet/run-opa-server
 quadlet/run-opa-server: ## Run OPA server in container with file watching
 	@echo "Using quadlet to run opa server"
+	@echo "Copying policies to $(QUADLET_POLICIES_DEST)"
 	@mkdir -p $(QUADLET_POLICIES_DEST)
 	@cp $(POLICY_DIR)/* $(QUADLET_POLICIES_DEST)/
+	@echo "Creating quadlet in user space"
 	@mkdir -p $(HOME)/.config/containers/systemd
 	@cp opa.container $(HOME)/.config/containers/systemd/
 	@sed -i 's%<QUADLET_POLICIES_DEST>%$(QUADLET_POLICIES_DEST)%' $(HOME)/.config/containers/systemd/opa.container
+	@echo "Starting opa service via quadlet"
 	@systemctl --user daemon-reload
 	@systemctl --user stop opa.service
 	@systemctl --user start opa.service
