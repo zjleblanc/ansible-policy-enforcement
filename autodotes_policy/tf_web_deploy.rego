@@ -2,53 +2,99 @@ package autodotes_policy
 
 import rego.v1
 
-# Define the allowed keys for extra_vars
-allowed_extra_var_keys := ["az_ssh_pubkey", "az_web_vm_size"]
-allowed_extra_var_values := {"az_web_vm_size": ["Standard_DS1_v2", "Standard_DS2_v2", "Standard_DS3_v2"]}
+# =============================================================================
+# TERRAFORM WEB DEPLOYMENT POLICY
+# =============================================================================
+# This policy validates Terraform web deployment configurations by:
+# 1. Ensuring only allowed extra_vars keys are provided
+# 2. Validating that extra_vars values are within allowed ranges
+#
+# Input structure expected:
+# {
+#   "extra_vars": {
+#     "az_ssh_pubkey": "<ssh_key>",
+#     "az_web_vm_size": "Standard_DS1_v2"
+#   }
+# }
+# =============================================================================
 
-# Extract extra_vars
-input_extra_vars := object.get(input, ["extra_vars"], {})
+# -----------------------------------------------------------------------------
+# CONFIGURATION
+# -----------------------------------------------------------------------------
 
-# Default policy result: allowed (no violations)
+# Define allowed keys for extra_vars
+allowed_extra_var_keys := {
+	"az_ssh_pubkey",
+	"az_web_vm_size"
+}
+
+# Define allowed values for specific keys
+allowed_extra_var_values := {
+	"az_web_vm_size": {
+		"Standard_DS1_v2",
+		"Standard_DS2_v2",
+		"Standard_DS3_v2",
+	}
+}
+
+# -----------------------------------------------------------------------------
+# DEFAULT POLICY RESULT
+# -----------------------------------------------------------------------------
+
 default tf_web_deploy := {
 	"allowed": true,
 	"violations": [],
 }
 
-# Evaluate extra_vars_allowlist, 
-# checking if provided extra_vars contain any keys not allowed
-tf_web_deploy := result if {
-	violating_keys := [key | input_extra_vars[key]; not allowed_key(key)]
-	count(violating_keys) > 0
+# -----------------------------------------------------------------------------
+# INPUT PROCESSING
+# -----------------------------------------------------------------------------
 
+# Extract extra_vars from input with safe fallback to empty object
+input_extra_vars := object.get(input, "extra_vars", {})
+
+# -----------------------------------------------------------------------------
+# VALIDATION RULES
+# -----------------------------------------------------------------------------
+
+# Check for disallowed extra_vars keys
+violations contains violation_message if {
+	# Find keys that are not in the allowed list
+	disallowed_keys := {key |
+		input_extra_vars[key]
+		not key in allowed_extra_var_keys
+	}
+
+	count(disallowed_keys) > 0
+
+	violation_message := sprintf(
+		"🙅 Disallowed extra_vars provided: [%v]. Allowed keys: [%v]",
+		[concat(",", disallowed_keys), concat(", ", allowed_extra_var_keys)],
+	)
+}
+
+# Check for invalid extra_vars values
+violations contains violation_message if {
+	# Find keys with values not in the allowed list
+	some key in object.keys(allowed_extra_var_values)
+	provided_value := input_extra_vars[key]
+	not provided_value in allowed_extra_var_values[key]
+
+	violation_message := sprintf(
+		"🙅 '%v' provided for '%v' not in accepted values: [%v]",
+		[provided_value, key, concat(", ", allowed_extra_var_values[key])],
+	)
+}
+
+# -----------------------------------------------------------------------------
+# FINAL POLICY DECISION
+# -----------------------------------------------------------------------------
+
+# Override default result when violations exist
+tf_web_deploy := result if {
+	count(violations) > 0
 	result := {
 		"allowed": false,
-		"violations": [sprintf("Following extra_vars are not allowed: %v. Allowed keys: %v", [violating_keys, allowed_extra_var_keys])],
+		"violations": violations,
 	}
-}
-
-# Evaluate extra_vars_validation to check if extra_vars values are allowed
-# Rules of same name are combined with logical OR
-tf_web_deploy := result if {
-	violating_keys := [key |
-		allowed_extra_var_values[key]
-		not allowed_value(key, input_extra_vars[key])
-	]
-
-	count(violating_keys) > 0
-
-	result := {
-		"allowed": false,
-		"violations": [sprintf("🙅 extra_vars contain disallowed values for keys: %v. Allowed values: %v", [violating_keys, allowed_extra_var_values])],
-	}
-}
-
-# Helper function: Checks if a given key is in the allowed_extra_var_keys list
-allowed_key(key) if {
-	allowed_extra_var_keys[_] == key
-}
-
-# Check if a given value for a key is allowed
-allowed_value(key, value) if {
-	allowed_extra_var_values[key][_] == value
 }
