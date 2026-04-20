@@ -26,7 +26,7 @@ input_extra_vars := object.get(input, "extra_vars", {})
 
 # Treat common spellings as production without relying on string builtins
 is_production_target if {
-	t := input_extra_vars.target_environment
+	t := input_extra_vars.demo_target_environment
 	t in {
 		"production",
 		"prod",
@@ -46,7 +46,7 @@ valid_change_ticket(ticket) if {
 # set and incorrectly block unrelated evaluations.
 demo_database_maintenance_violations contains msg if {
 	is_production_target
-	ticket := object.get(input_extra_vars, "change_ticket", "")
+	ticket := object.get(input_extra_vars, "demo_change_ticket", "")
 	not valid_change_ticket(ticket)
 	msg := sprintf(
 		"production change control: missing or invalid change_ticket (%q); required format CHG-12345 style ticket (example CHG-4412)",
