@@ -76,7 +76,7 @@
         body:
           input: "{{ item.payload }}"
         headers:
-          - Authorization: "Bearer {{ opa_token }}"
+          Authorization: "Bearer {{ opa_token }}"
         status_code: 200
         return_content: true
         validate_certs: "{{ opa_validate_certs }}"
