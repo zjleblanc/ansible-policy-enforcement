@@ -7,8 +7,13 @@ WantedBy=multi-user.target
 
 [Container]
 Image=docker.io/openpolicyagent/opa:latest-static
-Exec=run --server --set decision_logs.console=true --addr=0.0.0.0:8181 --watch /policies
+Exec=run --server --addr=0.0.0.0:8181 \
+  --set decision_logs.console=true \
+  --watch /policies \
+  --authentication=token \
+  --token-path=/auth/.opa_token
 ContainerName=opa
 PublishPort=8181:8181
 Pull=never
 Volume=<QUADLET_POLICIES_DEST>:/policies:z
+Volume=<OPA_TOKEN_PATH>:/auth:z

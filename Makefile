@@ -14,6 +14,7 @@ TOOLS_DIR := tools
 
 # Quadlet Variable
 QUADLET_POLICIES_DEST := $(HOME)/opa_policies
+OPA_TOKEN_PATH := $(HOME)/.opa_token
 
 # OPA Binary Management
 OPA := $(shell pwd)/bin/opa
@@ -87,6 +88,7 @@ quadlet/run-opa-server: ## Run OPA server in container with file watching
 	@mkdir -p $(HOME)/.config/containers/systemd
 	@cp opa.container $(HOME)/.config/containers/systemd/
 	@sed -i 's%<QUADLET_POLICIES_DEST>%$(QUADLET_POLICIES_DEST)%' $(HOME)/.config/containers/systemd/opa.container
+	@sed -i 's%<OPA_TOKEN_PATH>%$(OPA_TOKEN_PATH)%' $(HOME)/.config/containers/systemd/opa.container
 	@echo "Starting opa service via quadlet"
 	@systemctl --user daemon-reload
 	@systemctl --user stop opa.service
