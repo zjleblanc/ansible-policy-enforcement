@@ -119,11 +119,11 @@
           - (item.json.result.allowed | bool) == (item.item.expect_allowed | bool)
         quiet: true
         success_msg: >-
-          Result: {{ item.json.result.allowed | ternary('✅','🙅') }}.
+          Result: {{ item.json.result.allowed | ternary('✅','❌') }}.
           Violations: {{ item.json.result.violations | default('None! 🎉') }}.
         fail_msg: >-
-          Expected: {{ item.item.expect_allowed | ternary('✅','🙅') }},
-          Result: {{ item.json.result.allowed | ternary('✅','🙅') }}
+          Expected: {{ item.item.expect_allowed | ternary('✅','❌') }},
+          Result: {{ item.json.result.allowed | ternary('✅','❌') }}
           Violations: {{ item.json.result.violations | default('Missing? 🤔') }}.
 
     - name: Debug assertion messages
@@ -135,7 +135,7 @@
           {
             "Case": "{{ item.item.case }}",
             "Description": "{{ item.item.description }}",
-            "Expected": "{{ item.item.expect_allowed | ternary('✅','🙅') }}",
-            "Actual": "{{ item.json.result.allowed | ternary('✅','🙅') }}",
+            "Expected": "{{ item.item.expect_allowed | ternary('✅','❌') }}",
+            "Actual": "{{ item.json.result.allowed | ternary('✅','❌') }}",
             "Violations": {{ item.json.result.violations | default('None! 🎉') }}
           }
