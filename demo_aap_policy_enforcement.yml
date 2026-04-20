@@ -137,5 +137,5 @@
             "Description": "{{ item.item.description }}",
             "Expected": "{{ item.item.expect_allowed | ternary('✅','🙅') }}",
             "Actual": "{{ item.json.result.allowed | ternary('✅','🙅') }}",
-            "Violations": "{{ item.json.result.violations | default('None! 🎉') }}"
+            "Violations": {{ item.json.result.violations | default('None! 🎉') }}
           }
