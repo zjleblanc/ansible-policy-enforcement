@@ -36,6 +36,10 @@
     # Derived
     opa_query_url: "{{ opa_server }}/v1/data/{{ opa_namespace }}/{{ opa_policy_name }}"
 
+    # Live
+    demo_target_environment: production
+    demo_change_ticket: CHG12345
+
   # Testing stubs
   vars_files:
     - vars/demo_aap_policy_enforcement.yml
