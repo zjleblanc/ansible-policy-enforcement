@@ -46,6 +46,9 @@
 
   tasks:
     - name: Build request body per demo case
+      loop: "{{ opa_demo_case_inputs }}"
+      loop_control:
+        label: "{{ item.case }}"
       ansible.builtin.set_fact:
         opa_demo_requests: >-
           {{
@@ -68,11 +71,13 @@
               }
             ]
           }}
-      loop: "{{ opa_demo_case_inputs }}"
-      loop_control:
-        label: "{{ item.case }}"
 
     - name: POST each payload to OPA (same contract as AAP)
+      loop: "{{ opa_demo_requests }}"
+      register: r_opa_queries
+      ignore_errors: "{{ opa_ignore_http_errors | bool }}"
+      loop_control:
+        label: "{{ item.case }}"
       ansible.builtin.uri:
         url: "{{ opa_query_url }}"
         method: POST
@@ -84,11 +89,6 @@
         status_code: 200
         return_content: true
         validate_certs: "{{ opa_validate_certs }}"
-      loop: "{{ opa_demo_requests }}"
-      register: opa_http_results
-      ignore_errors: "{{ opa_ignore_http_errors | bool }}"
-      loop_control:
-        label: "{{ item.case }}"
 
     - name: Debug OPA HTTP and policy decision (per case)
       ansible.builtin.debug:
@@ -101,13 +101,14 @@
           response_keys: "{{ item.json.keys() | list if item.json is defined else [] }}"
           policy_decision: "{{ item.json.result if (item.json is defined and item.json.result is defined) else '<<no result — see raw_opa_response or transport_or_http_msg>>' }}"
           raw_opa_response: "{{ item.json | default({}) | to_nice_json }}"
-      loop: "{{ opa_http_results.results }}"
+      loop: "{{ r_opa_queries.results }}"
       loop_control:
         label: "{{ item.item.case }}"
 
     - name: Assert OPA returned a result and allowed matches expectation
       when: opa_assert_expectations | bool and not (item.failed | default(false))
-      loop: "{{ opa_http_results.results }}"
+      register: r_test_assertions
+      loop: "{{ r_opa_queries.results }}"
       loop_control:
         label: "{{ item.item.case }}"
       ansible.builtin.assert:
@@ -124,3 +125,17 @@
           Expected: {{ item.item.expect_allowed | ternary('✅','🙅') }},
           Result: {{ item.json.result.allowed | ternary('✅','🙅') }}
           Violations: {{ item.json.result.violations | default('Missing? 🤔') }}.
+
+    - name: Debug assertion messages
+      loop: "{{ r_opa_queries.results }}"
+      loop_control:
+        label: "{{ item.item.case }}"
+      ansible.builtin.debug:
+        msg: >-
+          {
+            Case: "{{ item.item.case }}",
+            Description: "{{ item.item.description }}",
+            Expected: "{{ item.item.expect_allowed | ternary('✅','🙅') }}",
+            Actual: "{{ item.json.result.allowed | ternary('✅','🙅') }}",
+            Violations: "{{ item.json.result.violations | default('None! 🎉') }}"
+          }
