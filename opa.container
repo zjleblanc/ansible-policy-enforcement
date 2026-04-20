@@ -16,4 +16,4 @@ ContainerName=opa
 PublishPort=8181:8181
 Pull=never
 Volume=<QUADLET_POLICIES_DEST>:/policies:z
-Volume=<OPA_TOKEN_PATH>:/auth:z
+Volume=<OPA_TOKEN_PATH>:/auth:zU
