@@ -94,16 +94,16 @@ opa_demo_case_inputs:
     job_name: "DB maintenance — staging"
     expect_allowed: true
     extra_vars:
-      target_environment: staging
+      demo_target_environment: staging
       operation: apply_migration
       database_name: orders
-  - case: production_denied_missing_change_ticket
-    description: "Production without change_ticket — should deny."
+  - case: production_denied_missing_demo_change_ticket
+    description: "Production without demo_change_ticket — should deny."
     job_id: 1002
     job_name: "DB maintenance — production"
     expect_allowed: false
     extra_vars:
-      target_environment: production
+      demo_target_environment: production
       operation: apply_migration
       database_name: orders
   - case: production_allowed_with_chg_ticket
@@ -112,8 +112,8 @@ opa_demo_case_inputs:
     job_name: "DB maintenance — production (approved)"
     expect_allowed: true
     extra_vars:
-      target_environment: production
-      change_ticket: "CHG-4412"
+      demo_target_environment: production
+      demo_change_ticket: "CHG-4412"
       operation: apply_migration
       database_name: orders
   - case: production_denied_bad_ticket_format
@@ -122,8 +122,8 @@ opa_demo_case_inputs:
     job_name: "DB maintenance — production (wrong ticket type)"
     expect_allowed: false
     extra_vars:
-      target_environment: prod
-      change_ticket: "INC-123"
+      demo_target_environment: prod
+      demo_change_ticket: "INC-123"
       operation: apply_migration
   - case: minimal_payload_staging_only_core_fields
     description: "Minimal payload (id, name, extra_vars) — staging should still allow."
@@ -132,13 +132,13 @@ opa_demo_case_inputs:
     expect_allowed: true
     payload_mode: minimal
     extra_vars:
-      target_environment: staging
+      demo_target_environment: staging
       operation: apply_migration
   - case: production_denied_prod_alias_no_ticket
-    description: "target_environment prod (alias) without ticket — should deny."
+    description: "demo_target_environment prod (alias) without ticket — should deny."
     job_id: 1005
     job_name: "DB maintenance — prod alias"
     expect_allowed: false
     extra_vars:
-      target_environment: prod
+      demo_target_environment: prod
       operation: vacuum_analyze
