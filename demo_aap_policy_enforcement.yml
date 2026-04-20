@@ -1,0 +1,118 @@
+---
+# Demo playbook: OPA enforcement as Ansible Automation Platform would call it
+#
+# Prerequisites: an OPA server reachable from the controller running this
+# playbook, with `namespace/policy_name` loaded (same as
+# AAP would use: namespace/policy_name).
+#
+# Default query URL follows OPA's Data API:
+#   POST {base}/v1/data/namespace/policy_name
+#   body: {"input": <job payload JSON>}
+#
+# Override connection details, for example:
+#   ansible-playbook demo_aap_policy_enforcement.yml \
+#     -e opa_query_url=https://opa.example.com/v1/data/{namespace}/{policy_name} \
+#     -e opa_http_headers="{'Authorization': 'Bearer your-token'}"
+#
+# See POLICY_INPUT_DATA.md for the full field reference used to shape payloads.
+
+- name: Demo AAP policy enforcement (HTTP to OPA server)
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    # Required extra_vars
+    # opa_server: http://ldap.autodotes.com:8181
+    # opa_token: <token>
+    # opa_namespace: autodotes_policy
+    # opa_policy_name: demo_database_maintenance
+
+    # Defaults
+    opa_validate_certs: false
+    opa_assert_expectations: true
+    opa_ignore_http_errors: false
+    
+    # Derived
+    opa_query_url: "{{ opa_server }}/v1/data/{{ opa_namespace }}/{{ opa_policy_name }}"
+
+  # Testing stubs
+  vars_files:
+    - vars/demo_aap_policy_enforcement.yml
+
+  tasks:
+    - name: Build request body per demo case
+      ansible.builtin.set_fact:
+        opa_demo_requests: >-
+          {{
+            opa_demo_requests | default([])
+            + [
+              {
+                'case': item.case,
+                'description': item.description,
+                'expect_allowed': item.expect_allowed,
+                'payload': (
+                  minimal_job_stub
+                  if ((item.payload_mode | default('full')) == 'minimal')
+                  else aap_platform_job_base
+                )
+                | combine({
+                    'id': item.job_id,
+                    'name': item.job_name,
+                    'extra_vars': item.extra_vars,
+                  }),
+              }
+            ]
+          }}
+      loop: "{{ opa_demo_case_inputs }}"
+      loop_control:
+        label: "{{ item.case }}"
+
+    - name: POST each payload to OPA (same contract as AAP)
+      ansible.builtin.uri:
+        url: "{{ opa_query_url }}"
+        method: POST
+        body_format: json
+        body:
+          input: "{{ item.payload }}"
+        headers:
+          - Authorization: "Bearer {{ opa_token }}"
+        status_code: 200
+        return_content: true
+        validate_certs: "{{ opa_validate_certs }}"
+      loop: "{{ opa_demo_requests }}"
+      register: opa_http_results
+      ignore_errors: "{{ opa_ignore_http_errors | bool }}"
+      loop_control:
+        label: "{{ item.case }}"
+
+    - name: Debug OPA HTTP and policy decision (per case)
+      ansible.builtin.debug:
+        msg:
+          case: "{{ item.item.case }}"
+          description: "{{ item.item.description }}"
+          request_failed: "{{ item.failed | default(false) }}"
+          http_status: "{{ item.status | default('n/a') }}"
+          transport_or_http_msg: "{{ item.msg | default('') }}"
+          response_keys: "{{ item.json.keys() | list if item.json is defined else [] }}"
+          policy_decision: "{{ item.json.result if (item.json is defined and item.json.result is defined) else '<<no result — see raw_opa_response or transport_or_http_msg>>' }}"
+          raw_opa_response: "{{ item.json | default({}) | to_nice_json }}"
+      loop: "{{ opa_http_results.results }}"
+      loop_control:
+        label: "{{ item.item.case }}"
+
+    - name: Assert OPA returned a result and allowed matches expectation
+      when: opa_assert_expectations | bool and not (item.failed | default(false))
+      ansible.builtin.assert:
+        that:
+          - item.json is defined
+          - item.json.result is defined
+          - item.json.result.allowed is defined
+          - (item.json.result.allowed | bool) == (item.item.expect_allowed | bool)
+        fail_msg: >-
+          Case {{ item.item.case }}: expected allowed={{ item.item.expect_allowed }},
+          got result={{ item.json.result | default('missing') }}.
+          Violations: {{ item.json.result.violations | default([]) }}.
+      loop: "{{ opa_http_results.results }}"
+      loop_control:
+        label: "{{ item.item.case }}"

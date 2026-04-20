@@ -1,0 +1,144 @@
+aap_platform_job_base:
+  id: 70
+  name: "Policy Enforcement // Database Maintenance Demo"
+  created: "2026-04-20T12:00:00Z"
+  created_by:
+    id: 42
+    username: "dba_operator"
+    is_superuser: false
+    teams: []
+  credentials:
+    - id: 3
+      name: "Demo Machine Credential"
+      description: ""
+      organization: null
+      credential_type: 1
+      managed: false
+      kind: "ssh"
+      cloud: false
+      kubernetes: false
+  execution_environment:
+    id: 2
+    name: "Default execution environment"
+    image: "registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel8:latest"
+    pull: "always"
+  extra_vars: {}
+  forks: 1
+  hosts_count: 3
+  instance_group:
+    id: 2
+    name: "default"
+    capacity: 100
+    jobs_running: 2
+    jobs_total: 120
+    max_concurrent_jobs: 0
+    max_forks: 0
+  inventory:
+    id: 10
+    name: "Database Inventory"
+    description: ""
+    kind: ""
+    total_hosts: 3
+    total_groups: 1
+    has_inventory_sources: false
+    total_inventory_sources: 0
+    has_active_failures: false
+    hosts_with_active_failures: 0
+    inventory_sources: []
+  job_template:
+    id: 7
+    name: "Policy Enforcement // Database Maintenance Demo"
+    job_type: "run"
+  job_type: "run"
+  job_type_name: "job"
+  labels:
+    - id: 1
+      name: "database"
+      organization:
+        id: 1
+        name: "Default"
+  launch_type: "manual"
+  limit: ""
+  launched_by:
+    id: 42
+    name: "dba_operator"
+    type: "user"
+    url: "/api/v2/users/42/"
+  organization:
+    id: 1
+    name: "Default"
+  playbook: "demo_aap_policy_enforcement.yml"
+  project:
+    id: 6
+    name: "Policy Enforcement"
+    status: "successful"
+    scm_type: "git"
+    scm_url: "https://github.com/zjleblanc/ansible-policy-enforcement.git"
+    scm_branch: "main"
+    scm_refspec: ""
+    scm_clean: false
+    scm_track_submodules: false
+    scm_delete_on_update: false
+  scm_branch: "main"
+  scm_revision: "abc123def456"
+
+# Tiny payload: only fields some policies read (Rego still receives full input; policy uses extra_vars).
+minimal_job_stub:
+  id: 2001
+  name: "Minimal job shape (id, name, extra_vars only)"
+  extra_vars: {}
+opa_demo_case_inputs:
+  - case: staging_allowed_full_platform_shape
+    description: "Staging target, full AAP-style job document — should allow (no CHG required)."
+    job_id: 1001
+    job_name: "DB maintenance — staging"
+    expect_allowed: true
+    extra_vars:
+      target_environment: staging
+      operation: apply_migration
+      database_name: orders
+  - case: production_denied_missing_change_ticket
+    description: "Production without change_ticket — should deny."
+    job_id: 1002
+    job_name: "DB maintenance — production"
+    expect_allowed: false
+    extra_vars:
+      target_environment: production
+      operation: apply_migration
+      database_name: orders
+  - case: production_allowed_with_chg_ticket
+    description: "Production with CHG ticket — should allow."
+    job_id: 1003
+    job_name: "DB maintenance — production (approved)"
+    expect_allowed: true
+    extra_vars:
+      target_environment: production
+      change_ticket: "CHG-4412"
+      operation: apply_migration
+      database_name: orders
+  - case: production_denied_bad_ticket_format
+    description: "Production with INC-style ticket — should deny (invalid format)."
+    job_id: 1004
+    job_name: "DB maintenance — production (wrong ticket type)"
+    expect_allowed: false
+    extra_vars:
+      target_environment: prod
+      change_ticket: "INC-123"
+      operation: apply_migration
+  - case: minimal_payload_staging_only_core_fields
+    description: "Minimal payload (id, name, extra_vars) — staging should still allow."
+    job_id: 2002
+    job_name: "Minimal staging launch"
+    expect_allowed: true
+    payload_mode: minimal
+    extra_vars:
+      target_environment: staging
+      operation: apply_migration
+  - case: production_denied_prod_alias_no_ticket
+    description: "target_environment prod (alias) without ticket — should deny."
+    job_id: 1005
+    job_name: "DB maintenance — prod alias"
+    expect_allowed: false
+    extra_vars:
+      target_environment: prod
+      operation: vacuum_analyze
