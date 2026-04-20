@@ -107,12 +107,16 @@
 
     - name: Assert OPA returned a result and allowed matches expectation
       when: opa_assert_expectations | bool and not (item.failed | default(false))
+      loop: "{{ opa_http_results.results }}"
+      loop_control:
+        label: "{{ item.item.case }}"
       ansible.builtin.assert:
         that:
           - item.json is defined
           - item.json.result is defined
           - item.json.result.allowed is defined
           - (item.json.result.allowed | bool) == (item.item.expect_allowed | bool)
+        quiet: true
         success_msg: >-
           Result: {{ item.json.result.allowed | ternary('✅','🙅') }}.
           Violations: {{ item.json.result.violations | default('None! 🎉') }}.
@@ -120,6 +124,3 @@
           Expected: {{ item.item.expect_allowed | ternary('✅','🙅') }},
           Result: {{ item.json.result.allowed | ternary('✅','🙅') }}
           Violations: {{ item.json.result.violations | default('Missing? 🤔') }}.
-      loop: "{{ opa_http_results.results }}"
-      loop_control:
-        label: "{{ item.item.case }}"
