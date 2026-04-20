@@ -113,10 +113,13 @@
           - item.json.result is defined
           - item.json.result.allowed is defined
           - (item.json.result.allowed | bool) == (item.item.expect_allowed | bool)
+        success_msg: >-
+          Result: {{ item.json.result.allowed | ternary('✅','🙅') }}.
+          Violations: {{ item.json.result.violations | default('None! 🎉') }}.
         fail_msg: >-
-          Case {{ item.item.case }}: expected allowed={{ item.item.expect_allowed }},
-          got result={{ item.json.result | default('missing') }}.
-          Violations: {{ item.json.result.violations | default([]) }}.
+          Expected: {{ item.item.expect_allowed | ternary('✅','🙅') }},
+          Result: {{ item.json.result.allowed | ternary('✅','🙅') }}
+          Violations: {{ item.json.result.violations | default('Missing? 🤔') }}.
       loop: "{{ opa_http_results.results }}"
       loop_control:
         label: "{{ item.item.case }}"
