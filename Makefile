@@ -14,7 +14,7 @@ TOOLS_DIR := tools
 
 # Quadlet Variable
 QUADLET_POLICIES_DEST := $(HOME)/opa_policies
-OPA_TOKEN_PATH := $(HOME)/.opa_token
+OPA_TOKEN_PATH := $(HOME)/opa_auth
 
 # OPA Binary Management
 OPA := $(shell pwd)/bin/opa
