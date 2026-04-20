@@ -11,7 +11,7 @@ Exec=run --server --addr=0.0.0.0:8181 \
   --set decision_logs.console=true \
   --watch /policies \
   --authentication=token \
-  --token-path=/auth/.opa_token
+  --set-file=services.default.credentials.bearer.token=/auth/.opa_token
 ContainerName=opa
 PublishPort=8181:8181
 Pull=never
